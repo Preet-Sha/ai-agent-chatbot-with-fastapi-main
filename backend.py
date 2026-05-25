@@ -1,6 +1,6 @@
 # from dotenv import load_dotenv
 # load_dotenv()
-
+import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
@@ -132,7 +132,7 @@ def chat(
 # RUN
 # ==========================
 
-import os
+
 
 if __name__=="__main__":
 
@@ -144,11 +144,7 @@ if __name__=="__main__":
     )
 
     uvicorn.run(
-
         app,
-
         host="0.0.0.0",
-
         port=port
-
     )

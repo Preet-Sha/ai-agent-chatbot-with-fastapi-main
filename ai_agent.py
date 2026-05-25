@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()
-
 from langchain_groq import ChatGroq
 
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -11,11 +8,11 @@ from langchain_core.messages.ai import AIMessage
 
 
 CHILD_PROMPT = """
-You are a gentle emotional support assistant for children.
+You are an emotional support AI for children.
+
+Be gentle.
 
 Use simple language.
-
-Be supportive.
 
 Encourage trusted adults.
 
@@ -24,13 +21,11 @@ Prioritize safety.
 
 
 WOMEN_PROMPT = """
-You are a trauma informed support assistant for women.
+You are an emotional support AI for women.
 
-Be warm.
+Be supportive.
 
 Never judge.
-
-Validate emotions.
 
 Prioritize safety.
 """
@@ -38,33 +33,32 @@ Prioritize safety.
 
 def get_response_from_ai_agent(
 
-    llm_id,
+    model,
 
     query,
 
     allow_search,
-
-    provider,
 
     support_type
 
 ):
 
     llm = ChatGroq(
-        model=llm_id
+        model=model
     )
 
 
     if support_type == "child":
 
-        system_prompt = CHILD_PROMPT
+        prompt = CHILD_PROMPT
 
     else:
 
-        system_prompt = WOMEN_PROMPT
+        prompt = WOMEN_PROMPT
 
 
     tools = []
+
 
     if allow_search:
 
@@ -83,36 +77,37 @@ def get_response_from_ai_agent(
 
         tools=tools,
 
-        state_modifier=system_prompt
+        state_modifier=prompt
     )
 
 
     response = agent.invoke(
 
         {
-            "messages": query
+
+            "messages":query
+
         }
     )
 
 
-    messages = response.get(
-        "messages",
-        []
-    )
+    messages = response[
+        "messages"
+    ]
 
 
-    ai_messages = [
+    ai = [
 
-        msg.content
+        x.content
 
-        for msg in messages
+        for x in messages
 
         if isinstance(
-            msg,
+            x,
             AIMessage
         )
 
     ]
 
 
-    return ai_messages[-1]
+    return ai[-1]

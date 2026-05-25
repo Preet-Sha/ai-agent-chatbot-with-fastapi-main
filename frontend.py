@@ -1,250 +1,365 @@
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 import streamlit as st
+import requests
+import uuid
 
-from database import *
-from ai_agent import *
+
+BACKEND_URL = "http://127.0.0.1:9999"
 
 
 st.set_page_config(
-    page_title="Safe Support Chatbot"
+    page_title="Mayi Disha",
+    page_icon="🌸",
+    layout="wide"
 )
 
-st.title(
-    "🌸 Safe Support Chatbot"
+
+# ==========================
+# CUSTOM CSS
+# ==========================
+
+st.markdown(
+    """
+    <style>
+
+    .main{
+        background: linear-gradient(
+        135deg,
+        #fff7f5,
+        #fff0f6,
+        #f8f5ff
+        );
+    }
+
+    .hero{
+        padding:25px;
+        border-radius:20px;
+
+        background:
+        linear-gradient(
+        135deg,
+        #ffdde1,
+        #ee9ca7
+        );
+
+        color:black;
+
+        text-align:center;
+
+        margin-bottom:20px;
+
+        box-shadow:
+        0px 10px 30px
+        rgba(0,0,0,0.08);
+    }
+
+    .hero h1{
+        font-size:42px;
+    }
+
+    .hero p{
+        font-size:18px;
+    }
+
+    .card{
+
+        background:white;
+
+        padding:18px;
+
+        border-radius:18px;
+
+        box-shadow:
+        0 6px 20px
+        rgba(0,0,0,0.05);
+
+        margin-bottom:15px;
+    }
+
+    .stChatMessage{
+
+        border-radius:18px;
+
+        padding:8px;
+
+        background:white;
+
+        margin-bottom:8px;
+    }
+
+    </style>
+    """,
+
+    unsafe_allow_html=True
 )
 
 
-if "logged_in" not in st.session_state:
+# ==========================
+# HEADER
+# ==========================
 
-    st.session_state.logged_in=False
+st.markdown(
+    """
+    <div class="hero">
+
+    <h1>🌸 Mayi Disha</h1>
+
+    <p>
+
+    AI Companion for Emotional Support
+
+    </p>
+
+    </div>
+
+    """,
+
+    unsafe_allow_html=True
+)
 
 
-if "user_id" not in st.session_state:
+# ==========================
+# SESSION
+# ==========================
 
-    st.session_state.user_id=None
+if "session_id" not in st.session_state:
 
-
-if "support" not in st.session_state:
-
-    st.session_state.support=None
-
-
-if "name" not in st.session_state:
-
-    st.session_state.name=None
+    st.session_state.session_id = str(
+        uuid.uuid4()
+    )
 
 
+if "messages" not in st.session_state:
 
-if not st.session_state.logged_in:
+    st.session_state.messages = []
 
-    page = st.sidebar.radio(
 
-        "Account",
+# ==========================
+# SIDEBAR
+# ==========================
+
+with st.sidebar:
+
+    st.markdown(
+        "## 🌷 Support Settings"
+    )
+
+    support = st.selectbox(
+
+        "Support Type",
 
         [
 
-            "Login",
+            "child",
 
-            "Signup"
+            "women"
 
         ]
     )
 
 
-    if page=="Signup":
-
-        name = st.text_input(
-            "Name"
-        )
-
-        email = st.text_input(
-            "Email"
-        )
-
-        password = st.text_input(
-            "Password",
-            type="password"
-        )
-
-        support = st.selectbox(
-
-            "Support Type",
-
-            [
-
-                "child",
-
-                "women"
-
-            ]
-        )
-
-
-        if st.button(
-            "Signup"
-        ):
-
-            ok = create_user(
-
-                name,
-
-                email,
-
-                password,
-
-                support
-            )
-
-
-            if ok:
-
-                st.success(
-                    "Account created"
-                )
-
-            else:
-
-                st.error(
-                    "Email exists"
-                )
-
-
-
-    if page=="Login":
-
-        email = st.text_input(
-            "Email"
-        )
-
-        password = st.text_input(
-            "Password",
-            type="password"
-        )
-
-
-        if st.button(
-            "Login"
-        ):
-
-            user = login_user(
-
-                email,
-
-                password
-            )
-
-
-            if user:
-
-                st.session_state.logged_in=True
-
-                st.session_state.user_id=user[0]
-
-                st.session_state.name=user[1]
-
-                st.session_state.support=user[2]
-
-                st.rerun()
-
-            else:
-
-                st.error(
-                    "Invalid credentials"
-                )
-
-
-
-else:
-
-    st.sidebar.success(
-
-        st.session_state.name
+    allow_search = st.toggle(
+        "Enable Search"
     )
 
 
-    if st.sidebar.button(
-        "Logout"
+    st.markdown("---")
+
+
+    if support=="child":
+
+        st.info(
+            "Gentle support mode enabled"
+        )
+
+    else:
+
+        st.info(
+            "Women support mode enabled"
+        )
+
+
+    if st.button(
+        "🗑 Clear Chat"
     ):
 
-        st.session_state.clear()
+        st.session_state.messages=[]
+
+        st.session_state.session_id = str(
+            uuid.uuid4()
+        )
 
         st.rerun()
 
 
-    allow_search = st.checkbox(
-        "Allow Search"
+# ==========================
+# FEATURE CARDS
+# ==========================
+
+c1,c2,c3 = st.columns(3)
+
+with c1:
+
+    st.markdown(
+
+        """
+        <div class="card">
+
+        🤝 Emotional Support
+
+        </div>
+
+        """,
+
+        unsafe_allow_html=True
+    )
+
+with c2:
+
+    st.markdown(
+
+        """
+        <div class="card">
+
+        🧠 AI Companion
+
+        </div>
+
+        """,
+
+        unsafe_allow_html=True
+    )
+
+with c3:
+
+    st.markdown(
+
+        """
+        <div class="card">
+
+        🔒 Safe Space
+
+        </div>
+
+        """,
+
+        unsafe_allow_html=True
     )
 
 
-    history = get_history(
+st.markdown("---")
 
-        st.session_state.user_id
+
+# ==========================
+# CHAT HISTORY
+# ==========================
+
+for msg in st.session_state.messages:
+
+    with st.chat_message(
+        msg["role"]
+    ):
+
+        st.markdown(
+            msg["content"]
+        )
+
+
+prompt = st.chat_input(
+    "Share your thoughts..."
+)
+
+
+# ==========================
+# CHAT
+# ==========================
+
+if prompt:
+
+    st.session_state.messages.append(
+
+        {
+
+            "role":"user",
+
+            "content":prompt
+
+        }
+
     )
 
 
-    for role,msg in history:
+    with st.chat_message(
+        "user"
+    ):
 
-        with st.chat_message(
-            role
-        ):
-
-            st.markdown(msg)
-
-
-    prompt = st.chat_input(
-        "Type..."
-    )
-
-
-    if prompt:
-
-        save_message(
-
-            st.session_state.user_id,
-
-            "user",
-
+        st.markdown(
             prompt
         )
 
 
-        history = get_history(
+    payload = {
 
-            st.session_state.user_id
+        "user_id":1,
+
+        "session_id":
+        st.session_state.session_id,
+
+        "model_name":
+        "llama-3.3-70b-versatile",
+
+        "support_type":
+        support,
+
+        "messages":
+        [prompt],
+
+        "allow_search":
+        allow_search
+
+    }
+
+
+    with st.spinner(
+        "Mayi Disha is thinking..."
+    ):
+
+        r = requests.post(
+
+            f"{BACKEND_URL}/chat",
+
+            json=payload
+
         )
 
 
-        messages = [
-
-            x[1]
-
-            for x in history
-
+        response = r.json()[
+            "response"
         ]
 
 
-        reply = get_response_from_ai_agent(
+    st.session_state.messages.append(
 
-            "llama-3.3-70b-versatile",
+        {
 
-            messages,
+            "role":"assistant",
 
-            allow_search,
+            "content":response
 
-            st.session_state.support
+        }
+
+    )
+
+
+    with st.chat_message(
+        "assistant"
+    ):
+
+        st.markdown(
+            response
         )
 
 
-        save_message(
-
-            st.session_state.user_id,
-
-            "assistant",
-
-            reply
-        )
-
-
-        st.rerun()
+    st.rerun()

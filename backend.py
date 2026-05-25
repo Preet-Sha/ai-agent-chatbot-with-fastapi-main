@@ -1,148 +1,82 @@
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
+import uvicorn
 
 from ai_agent import get_response_from_ai_agent
-
 from database import (
-    create_user,
-    login_user,
     save_message,
     get_history
 )
 
 app = FastAPI(
-    title="Safe Support Chatbot"
+    title="Mayi Disha"
 )
 
 
-class SignupRequest(BaseModel):
-
-    name:str
-
-    email:str
-
-    password:str
-
-    support_type:str
-
-
-class LoginRequest(BaseModel):
-
-    email:str
-
-    password:str
-
+# ==========================
+# CHAT REQUEST
+# ==========================
 
 class ChatRequest(BaseModel):
 
-    user_id:int
+    user_id: int
 
-    session_id:str
+    session_id: str
 
-    model_name:str
+    model_name: str
 
-    model_provider:str
+    support_type: str
 
-    support_type:str
+    messages: List[str]
 
-    messages:List[str]
-
-    allow_search:bool
+    allow_search: bool = False
 
 
+# ==========================
+# HOME ROUTE
+# ==========================
 
-@app.post("/signup")
-def signup(
-    request:SignupRequest
-):
+@app.get("/")
 
-    success = create_user(
-
-        request.name,
-
-        request.email,
-
-        request.password,
-
-        request.support_type
-    )
-
-    if success:
-
-        return {
-
-            "success":True,
-
-            "message":"Account created"
-
-        }
+def home():
 
     return {
 
-        "success":False,
-
-        "message":"Email already exists"
+        "message":
+        "Mayi Disha Backend Running"
 
     }
 
 
-
-@app.post("/login")
-def login(
-    request:LoginRequest
-):
-
-    user = login_user(
-
-        request.email,
-
-        request.password
-    )
-
-
-    if user is None:
-
-        return {
-
-            "success":False,
-
-            "message":"Invalid credentials"
-
-        }
-
-
-    return {
-
-        "success":True,
-
-        "user_id":user[0],
-
-        "name":user[1],
-
-        "support_type":user[2]
-
-    }
-
-
+# ==========================
+# CHAT ROUTE
+# ==========================
 
 @app.post("/chat")
+
 def chat(
-    request:ChatRequest
+
+    request: ChatRequest
+
 ):
 
     history = get_history(
+
         request.session_id
+
     )
 
-    full_query = (
+
+    full_query = "\n".join(
 
         history +
 
         request.messages
+
     )
 
 
@@ -154,9 +88,8 @@ def chat(
 
         request.allow_search,
 
-        request.model_provider,
-
         request.support_type
+
     )
 
 
@@ -169,6 +102,7 @@ def chat(
         "user",
 
         request.messages[-1]
+
     )
 
 
@@ -181,30 +115,33 @@ def chat(
         "assistant",
 
         response
+
     )
 
 
     return {
 
-        "success":True,
+        "success": True,
 
-        "response":response
+        "response": response
 
     }
 
 
+# ==========================
+# RUN
+# ==========================
 
-if __name__=="__main__":
-
-    import uvicorn
+if __name__ == "__main__":
 
     uvicorn.run(
 
-        app,
+        "backend:app",
 
         host="127.0.0.1",
 
         port=9999,
 
         reload=True
+
     )

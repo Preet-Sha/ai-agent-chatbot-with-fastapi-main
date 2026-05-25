@@ -40,7 +40,7 @@ Rules:
 
 - Encourage trusted adults
 
-Reply under 40 words.
+Reply under 80 words.
 
 """
 
@@ -63,7 +63,7 @@ Rules:
 
 - Never judge
 
-Reply under 50 words.
+Reply under 90 words.
 
 """
 

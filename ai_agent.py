@@ -21,55 +21,6 @@ memory = ConversationBufferMemory(
 
 
 # ==========================
-# CRISIS DETECTION
-# ==========================
-
-CRISIS_WORDS = [
-
-    "hurt myself",
-
-    "kill myself",
-
-    "suicide",
-
-    "end my life",
-
-    "self harm",
-
-    "want to die",
-
-    "die"
-
-]
-
-
-EMERGENCY_RESPONSE = """
-
-I'm sorry you're feeling this way.
-
-You are not alone 🌸
-
-Please reach out to someone you trust or a support professional.
-
-If you're in immediate danger, contact local emergency support.
-
-"""
-
-
-def detect_crisis(text):
-
-    text = text.lower()
-
-    for word in CRISIS_WORDS:
-
-        if word in text:
-
-            return True
-
-    return False
-
-
-# ==========================
 # CHILD PROMPT
 # ==========================
 
@@ -134,33 +85,10 @@ def get_response_from_ai_agent(
 ):
 
 
-    # ------------------
-    # CURRENT MESSAGE ONLY
-    # ------------------
-
     current_message = query.split(
         "\n"
     )[-1]
 
-
-    # ------------------
-    # CRISIS CHECK
-    # ------------------
-
-    if detect_crisis(
-
-        current_message
-
-    ):
-
-        memory.clear()
-
-        return EMERGENCY_RESPONSE
-
-
-    # ------------------
-    # MODEL
-    # ------------------
 
     llm = ChatGroq(
 
@@ -183,10 +111,6 @@ def get_response_from_ai_agent(
 
     )
 
-
-    # ------------------
-    # TOOLS
-    # ------------------
 
     tools=[]
 
@@ -215,9 +139,7 @@ def get_response_from_ai_agent(
     )
 
 
-    # ------------------
     # LOAD MEMORY
-    # ------------------
 
     history = memory.load_memory_variables(
         {}
@@ -243,10 +165,6 @@ def get_response_from_ai_agent(
 
     ]
 
-
-    # ------------------
-    # AGENT RESPONSE
-    # ------------------
 
     response = agent.invoke(
 
@@ -283,9 +201,7 @@ def get_response_from_ai_agent(
     final_response = ai_messages[-1]
 
 
-    # ------------------
     # SAVE MEMORY
-    # ------------------
 
     memory.save_context(
 

@@ -1,5 +1,4 @@
-from dotenv import load_dotenv
-load_dotenv()
+
 
 import streamlit as st
 
@@ -8,8 +7,14 @@ from database import *
 from ai_agent import *
 
 
+# ==========================
+# PAGE CONFIG
+# ==========================
 st.set_page_config(
+    
+
     page_title="Safe Support Chatbot",
+
     layout="centered"
 )
 
@@ -17,6 +22,7 @@ st.set_page_config(
 st.title(
     "🌸 Safe Support Chatbot"
 )
+
 
 
 # ==========================
@@ -44,7 +50,7 @@ if "name" not in st.session_state:
 
 
 # ==========================
-# LOGIN / SIGNUP
+# LOGIN / SIGNUP SECTION
 # ==========================
 if not st.session_state.logged_in:
 
@@ -116,7 +122,7 @@ if not st.session_state.logged_in:
             if ok:
 
                 st.success(
-                    "Account created"
+                    "Account created successfully"
                 )
 
             else:
@@ -124,6 +130,7 @@ if not st.session_state.logged_in:
                 st.error(
                     "Email already exists"
                 )
+
 
 
     # ======================
@@ -167,7 +174,6 @@ if not st.session_state.logged_in:
 
                 st.rerun()
 
-
             else:
 
                 st.error(
@@ -196,16 +202,13 @@ else:
         st.rerun()
 
 
-
     model = st.selectbox(
 
-        "Model",
+        "Select Model",
 
         [
 
-            "llama-3.3-70b-versatile",
-
-            
+            "llama-3.3-70b-versatile"
 
         ]
     )
@@ -216,19 +219,28 @@ else:
     )
 
 
+    # ======================
+    # DISPLAY CHAT HISTORY
+    # ======================
     history = get_history(
 
         st.session_state.user_id
     )
 
 
-    for msg in history:
+    for i, msg in enumerate(history):
 
-        st.write(
-            msg
-        )
+        role = "user" if i % 2 == 0 else "assistant"
+
+        with st.chat_message(role):
+
+            st.markdown(msg)
 
 
+
+    # ======================
+    # USER INPUT
+    # ======================
     prompt = st.chat_input(
         "Type your message"
     )
@@ -236,6 +248,14 @@ else:
 
     if prompt:
 
+
+        # show user message instantly
+        with st.chat_message("user"):
+
+            st.markdown(prompt)
+
+
+        # save user message
         save_message(
 
             st.session_state.user_id,
@@ -246,24 +266,31 @@ else:
         )
 
 
+        # get updated history
         history = get_history(
 
             st.session_state.user_id
         )
 
 
-        reply = get_response_from_ai_agent(
+        # AI RESPONSE
+        with st.spinner(
+            "Thinking..."
+        ):
 
-            model,
+            reply = get_response_from_ai_agent(
 
-            history,
+                model,
 
-            allow_search,
+                history,
 
-            st.session_state.support
-        )
+                allow_search,
+
+                st.session_state.support
+            )
 
 
+        # save assistant response
         save_message(
 
             st.session_state.user_id,
@@ -272,6 +299,12 @@ else:
 
             reply
         )
+
+
+        # display assistant response
+        with st.chat_message("assistant"):
+
+            st.markdown(reply)
 
 
         st.rerun()

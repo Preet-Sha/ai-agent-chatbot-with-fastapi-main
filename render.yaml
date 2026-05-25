@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: mayi-disha-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend.py

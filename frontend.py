@@ -7,7 +7,7 @@ import uuid
 BACKEND_URL = "https://mayi-disha-backend-production.up.railway.app"
 
 st.set_page_config(
-    page_title="Mayi Disha",
+    page_title="Nayi Disha",
     page_icon="🌸",
     layout="wide"
 )
@@ -363,7 +363,7 @@ if "messages" not in st.session_state:
 # SIDEBAR
 # ==========================
 with st.sidebar:
-    st.markdown('<div class="sidebar-title">🌸 Mayi Disha</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-title">🌸 Nayi Disha</div>', unsafe_allow_html=True)
     st.markdown('<span class="sidebar-badge">✦ AI Companion</span>', unsafe_allow_html=True)
 
     st.markdown("**Support Type**")
@@ -401,7 +401,7 @@ with st.sidebar:
 # ==========================
 st.markdown("""
 <div class="hero">
-    <h1 class="hero-title">🌸 Mayi Disha</h1>
+    <h1 class="hero-title">🌸 Nayi Disha</h1>
     <p class="hero-sub">Your gentle AI companion — here to listen, support & heal</p>
     <div class="hero-dots">
         <div class="hero-dot active"></div>
@@ -458,7 +458,7 @@ if not st.session_state.messages:
     <div class="welcome-card">
         <span class="big-emoji">🌷</span>
         <p>Welcome, you're in a safe and caring space.<br>
-        Feel free to share what's on your heart — Mayi Disha is here to listen without judgement.</p>
+        Feel free to share what's on your heart — Nayi Disha is here to listen without judgement.</p>
         <div class="mood-chips">
             <span class="mood-chip">😔 Feeling sad</span>
             <span class="mood-chip">😰 Feeling anxious</span>
@@ -495,7 +495,7 @@ if prompt:
         "allow_search": allow_search
     }
 
-    with st.spinner("🌸 Mayi Disha is listening..."):
+    with st.spinner("🌸 Nayi Disha is listening..."):
         try:
             r = requests.post(f"{BACKEND_URL}/chat", json=payload)
             response = r.json()["response"]

@@ -32,7 +32,7 @@ Rules:
 
 - Keep responses short
 
-- Maximum 2 lines
+- Maximum 5-6 lines
 
 - Use simple words
 
@@ -57,7 +57,7 @@ Rules:
 
 - Keep responses concise
 
-- Maximum 3 lines
+- Maximum 5-7 lines
 
 - Be supportive
 

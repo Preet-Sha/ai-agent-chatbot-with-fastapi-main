@@ -6,30 +6,32 @@ from langgraph.prebuilt import create_react_agent
 
 from langchain_core.messages.ai import AIMessage
 
-
 CHILD_PROMPT = """
 You are an emotional support AI for children.
 
-Be gentle.
+Rules:
 
-Use simple language.
+- Keep responses short (2-3 lines max)
+- Use simple words
+- Be gentle
+- Encourage trusted adults
+- Prioritize safety
 
-Encourage trusted adults.
-
-Prioritize safety.
+Do not give long explanations.
 """
-
 
 WOMEN_PROMPT = """
 You are an emotional support AI for women.
 
-Be supportive.
+Rules:
 
-Never judge.
+- Keep responses concise (2-4 lines max)
+- Be supportive
+- Never judge
+- Prioritize safety
 
-Prioritize safety.
+Avoid long paragraphs.
 """
-
 
 def get_response_from_ai_agent(
 
@@ -44,8 +46,10 @@ def get_response_from_ai_agent(
 ):
 
     llm = ChatGroq(
-        model=model
-    )
+    model=model,
+    temperature=0.3,
+    max_tokens=120
+)
 
 
     if support_type == "child":

@@ -7,14 +7,8 @@ from database import *
 from ai_agent import *
 
 
-# ==========================
-# PAGE CONFIG
-# ==========================
 st.set_page_config(
-
-    page_title="Safe Support Chatbot",
-
-    layout="centered"
+    page_title="Safe Support Chatbot"
 )
 
 st.title(
@@ -22,33 +16,27 @@ st.title(
 )
 
 
-# ==========================
-# SESSION STATE
-# ==========================
 if "logged_in" not in st.session_state:
 
-    st.session_state.logged_in = False
+    st.session_state.logged_in=False
 
 
 if "user_id" not in st.session_state:
 
-    st.session_state.user_id = None
+    st.session_state.user_id=None
 
 
 if "support" not in st.session_state:
 
-    st.session_state.support = None
+    st.session_state.support=None
 
 
 if "name" not in st.session_state:
 
-    st.session_state.name = None
+    st.session_state.name=None
 
 
 
-# ==========================
-# LOGIN / SIGNUP
-# ==========================
 if not st.session_state.logged_in:
 
     page = st.sidebar.radio(
@@ -65,10 +53,7 @@ if not st.session_state.logged_in:
     )
 
 
-    # ======================
-    # SIGNUP
-    # ======================
-    if page == "Signup":
+    if page=="Signup":
 
         name = st.text_input(
             "Name"
@@ -79,12 +64,9 @@ if not st.session_state.logged_in:
         )
 
         password = st.text_input(
-
             "Password",
-
             type="password"
         )
-
 
         support = st.selectbox(
 
@@ -119,30 +101,25 @@ if not st.session_state.logged_in:
             if ok:
 
                 st.success(
-                    "Account created successfully"
+                    "Account created"
                 )
 
             else:
 
                 st.error(
-                    "Email already exists"
+                    "Email exists"
                 )
 
 
 
-    # ======================
-    # LOGIN
-    # ======================
-    if page == "Login":
+    if page=="Login":
 
         email = st.text_input(
             "Email"
         )
 
         password = st.text_input(
-
             "Password",
-
             type="password"
         )
 
@@ -161,13 +138,13 @@ if not st.session_state.logged_in:
 
             if user:
 
-                st.session_state.logged_in = True
+                st.session_state.logged_in=True
 
-                st.session_state.user_id = user[0]
+                st.session_state.user_id=user[0]
 
-                st.session_state.name = user[1]
+                st.session_state.name=user[1]
 
-                st.session_state.support = user[2]
+                st.session_state.support=user[2]
 
                 st.rerun()
 
@@ -179,14 +156,11 @@ if not st.session_state.logged_in:
 
 
 
-# ==========================
-# CHAT SECTION
-# ==========================
 else:
 
     st.sidebar.success(
 
-        f"Logged in as {st.session_state.name}"
+        st.session_state.name
     )
 
 
@@ -199,57 +173,32 @@ else:
         st.rerun()
 
 
-    model = st.selectbox(
-
-        "Select Model",
-
-        [
-
-            "llama-3.3-70b-versatile"
-
-        ]
-    )
-
-
     allow_search = st.checkbox(
-        "Allow Web Search"
+        "Allow Search"
     )
 
 
-    # ======================
-    # SHOW HISTORY
-    # ======================
     history = get_history(
 
         st.session_state.user_id
     )
 
 
-    for role, msg in history:
+    for role,msg in history:
 
-        with st.chat_message(role):
+        with st.chat_message(
+            role
+        ):
 
             st.markdown(msg)
 
 
-
-    # ======================
-    # USER INPUT
-    # ======================
     prompt = st.chat_input(
-        "Type your message"
+        "Type..."
     )
 
 
     if prompt:
-
-
-        with st.chat_message(
-            "user"
-        ):
-
-            st.markdown(prompt)
-
 
         save_message(
 
@@ -276,20 +225,16 @@ else:
         ]
 
 
-        with st.spinner(
-            "Thinking..."
-        ):
+        reply = get_response_from_ai_agent(
 
-            reply = get_response_from_ai_agent(
+            "llama-3.3-70b-versatile",
 
-                model,
+            messages,
 
-                messages,
+            allow_search,
 
-                allow_search,
-
-                st.session_state.support
-            )
+            st.session_state.support
+        )
 
 
         save_message(
@@ -300,13 +245,6 @@ else:
 
             reply
         )
-
-
-        with st.chat_message(
-            "assistant"
-        ):
-
-            st.markdown(reply)
 
 
         st.rerun()

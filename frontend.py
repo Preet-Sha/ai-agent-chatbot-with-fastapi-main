@@ -203,9 +203,7 @@ else:
 
         [
 
-            "llama-3.3-70b-versatile",
-
-            "mixtral-8x7b-32768"
+            "Nayi Disha"
 
         ]
     )
@@ -254,7 +252,7 @@ else:
 
         reply = get_response_from_ai_agent(
 
-            model,
+            "llama-3.3-70b-versatile",
 
             history,
 

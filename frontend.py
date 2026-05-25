@@ -1,13 +1,11 @@
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 import streamlit as st
 import requests
 import uuid
 
-
 BACKEND_URL = "http://127.0.0.1:9999"
-
 
 st.set_page_config(
     page_title="Mayi Disha",
@@ -21,78 +19,309 @@ st.set_page_config(
 # ==========================
 
 st.markdown(
-    """
-    <style>
+"""
+<style>
 
-    .main{
-        background: linear-gradient(
-        135deg,
-        #fff7f5,
-        #fff0f6,
-        #f8f5ff
-        );
-    }
+.stApp{
 
-    .hero{
-        padding:25px;
-        border-radius:20px;
+background:
+linear-gradient(
+135deg,
+#0f172a,
+#111827,
+#1e1b4b
+);
 
-        background:
-        linear-gradient(
-        135deg,
-        #ffdde1,
-        #ee9ca7
-        );
+color:white;
 
-        color:black;
+}
 
-        text-align:center;
 
-        margin-bottom:20px;
+/* HERO */
 
-        box-shadow:
-        0px 10px 30px
-        rgba(0,0,0,0.08);
-    }
+.hero{
 
-    .hero h1{
-        font-size:42px;
-    }
+padding:45px;
 
-    .hero p{
-        font-size:18px;
-    }
+border-radius:28px;
 
-    .card{
+background:
+linear-gradient(
+135deg,
+rgba(255,192,203,0.25),
+rgba(236,72,153,0.18)
+);
 
-        background:white;
+backdrop-filter: blur(18px);
 
-        padding:18px;
+border:
+1px solid rgba(
+255,
+255,
+255,
+0.12
+);
 
-        border-radius:18px;
+text-align:center;
 
-        box-shadow:
-        0 6px 20px
-        rgba(0,0,0,0.05);
+box-shadow:
+0px 12px 40px
+rgba(
+0,
+0,
+0,
+0.35
+);
 
-        margin-bottom:15px;
-    }
+transition:0.4s;
 
-    .stChatMessage{
+}
 
-        border-radius:18px;
+.hero:hover{
 
-        padding:8px;
+transform:
+translateY(-5px);
 
-        background:white;
+box-shadow:
+0px 18px 50px
+rgba(
+255,
+105,
+180,
+0.25
+);
 
-        margin-bottom:8px;
-    }
+}
 
-    </style>
-    """,
+.hero h1{
 
-    unsafe_allow_html=True
+font-size:64px;
+
+font-weight:800;
+
+color:white;
+
+}
+
+.hero p{
+
+font-size:22px;
+
+color:#f3f4f6;
+
+}
+
+
+/* FEATURE CARDS */
+
+.card{
+
+background:
+rgba(
+255,
+255,
+255,
+0.08
+);
+
+backdrop-filter:
+blur(12px);
+
+padding:28px;
+
+border-radius:22px;
+
+text-align:center;
+
+font-size:22px;
+
+font-weight:600;
+
+color:white;
+
+border:
+
+1px solid rgba(
+255,
+255,
+255,
+0.12
+);
+
+transition:all .35s ease;
+
+box-shadow:
+0px 8px 25px
+rgba(
+0,
+0,
+0,
+0.25
+);
+
+height:120px;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+
+.card:hover{
+
+transform:
+
+translateY(-10px)
+
+scale(1.04);
+
+background:
+
+linear-gradient(
+135deg,
+rgba(
+255,
+192,
+203,
+0.30
+),
+
+rgba(
+236,
+72,
+153,
+0.25
+)
+
+);
+
+box-shadow:
+
+0px 15px 35px
+
+rgba(
+236,
+72,
+153,
+0.30
+);
+
+cursor:pointer;
+
+}
+
+
+/* CHAT */
+
+.stChatMessage{
+
+background:
+
+rgba(
+255,
+255,
+255,
+0.08
+);
+
+backdrop-filter:
+blur(10px);
+
+border-radius:20px;
+
+padding:12px;
+
+margin-bottom:10px;
+
+border:
+
+1px solid rgba(
+255,
+255,
+255,
+0.08
+);
+
+}
+
+
+/* SIDEBAR */
+
+[data-testid="stSidebar"]{
+
+background:
+
+linear-gradient(
+
+180deg,
+
+#111827,
+
+#1e293b
+
+);
+
+}
+
+
+/* BUTTON */
+
+.stButton>button{
+
+width:100%;
+
+border-radius:16px;
+
+background:
+
+linear-gradient(
+
+135deg,
+
+#ec4899,
+
+#f472b6
+
+);
+
+color:white;
+
+border:none;
+
+font-weight:700;
+
+transition:.3s;
+
+}
+
+
+.stButton>button:hover{
+
+transform:
+
+translateY(-3px);
+
+box-shadow:
+
+0px 8px 20px
+
+rgba(
+236,
+72,
+153,
+0.4
+);
+
+}
+
+</style>
+
+""",
+
+unsafe_allow_html=True
 )
 
 
@@ -101,22 +330,29 @@ st.markdown(
 # ==========================
 
 st.markdown(
-    """
-    <div class="hero">
 
-    <h1>🌸 Mayi Disha</h1>
+"""
 
-    <p>
+<div class="hero">
 
-    AI Companion for Emotional Support
+<h1>
 
-    </p>
+🌸 Mayi Disha
 
-    </div>
+</h1>
 
-    """,
+<p>
 
-    unsafe_allow_html=True
+AI Companion for Emotional Support & Healing
+
+</p>
+
+</div>
+
+""",
+
+unsafe_allow_html=True
+
 )
 
 
@@ -133,7 +369,7 @@ if "session_id" not in st.session_state:
 
 if "messages" not in st.session_state:
 
-    st.session_state.messages = []
+    st.session_state.messages=[]
 
 
 # ==========================
@@ -157,6 +393,7 @@ with st.sidebar:
             "women"
 
         ]
+
     )
 
 
@@ -171,13 +408,13 @@ with st.sidebar:
     if support=="child":
 
         st.info(
-            "Gentle support mode enabled"
+            "Gentle Support Mode"
         )
 
     else:
 
         st.info(
-            "Women support mode enabled"
+            "Women Support Mode"
         )
 
 
@@ -198,54 +435,68 @@ with st.sidebar:
 # FEATURE CARDS
 # ==========================
 
-c1,c2,c3 = st.columns(3)
+c1,c2,c3=st.columns(3)
 
 with c1:
 
     st.markdown(
 
-        """
-        <div class="card">
+    """
 
-        🤝 Emotional Support
+    <div class="card">
 
-        </div>
+    🤝<br>
 
-        """,
+    Emotional Support
 
-        unsafe_allow_html=True
+    </div>
+
+    """,
+
+    unsafe_allow_html=True
+
     )
+
 
 with c2:
 
     st.markdown(
 
-        """
-        <div class="card">
+    """
 
-        🧠 AI Companion
+    <div class="card">
 
-        </div>
+    🧠<br>
 
-        """,
+    AI Companion
 
-        unsafe_allow_html=True
+    </div>
+
+    """,
+
+    unsafe_allow_html=True
+
     )
+
 
 with c3:
 
     st.markdown(
 
-        """
-        <div class="card">
+    """
 
-        🔒 Safe Space
+    <div class="card">
 
-        </div>
+    🔒<br>
 
-        """,
+    Safe Space
 
-        unsafe_allow_html=True
+    </div>
+
+    """,
+
+    unsafe_allow_html=True
+
     )
 
 
@@ -323,10 +574,10 @@ if prompt:
 
 
     with st.spinner(
-        "Mayi Disha is thinking..."
+        "🌸 Mayi Disha is listening..."
     ):
 
-        r = requests.post(
+        r=requests.post(
 
             f"{BACKEND_URL}/chat",
 
@@ -335,7 +586,7 @@ if prompt:
         )
 
 
-        response = r.json()[
+        response=r.json()[
             "response"
         ]
 

@@ -13,9 +13,8 @@ st.set_page_config(
     layout="wide"
 )
 
-
 # ==========================
-# CUSTOM CSS
+# CSS
 # ==========================
 
 st.markdown(
@@ -23,83 +22,61 @@ st.markdown(
 <style>
 
 .stApp{
-
 background:
 linear-gradient(
 135deg,
 #0f172a,
 #111827,
-#1e1b4b
+#1e293b
 );
-
-color:white;
-
 }
-
 
 /* HERO */
 
 .hero{
 
-padding:45px;
+padding:40px;
 
-border-radius:28px;
+border-radius:25px;
 
 background:
 linear-gradient(
 135deg,
-rgba(255,192,203,0.25),
-rgba(236,72,153,0.18)
-);
-
-backdrop-filter: blur(18px);
-
-border:
-1px solid rgba(
-255,
-255,
-255,
-0.12
+#fbcfe8,
+#f9a8d4
 );
 
 text-align:center;
 
 box-shadow:
-0px 12px 40px
-rgba(
+0px 10px 30px rgba(
 0,
 0,
 0,
-0.35
+0.25
 );
 
-transition:0.4s;
+margin-bottom:20px;
+
+transition:.3s;
 
 }
 
 .hero:hover{
 
 transform:
-translateY(-5px);
-
-box-shadow:
-0px 18px 50px
-rgba(
-255,
-105,
-180,
-0.25
-);
+translateY(-4px);
 
 }
 
+
 .hero h1{
 
-font-size:64px;
+font-size:60px;
 
 font-weight:800;
 
-color:white;
+color:black;
 
 }
 
@@ -107,12 +84,12 @@ color:white;
 
 font-size:22px;
 
-color:#f3f4f6;
+color:#1f2937;
 
 }
 
 
-/* FEATURE CARDS */
+/* CARDS */
 
 .card{
 
@@ -124,125 +101,43 @@ rgba(
 0.08
 );
 
-backdrop-filter:
-blur(12px);
+padding:25px;
 
-padding:28px;
-
-border-radius:22px;
+border-radius:20px;
 
 text-align:center;
 
-font-size:22px;
+font-size:20px;
 
 font-weight:600;
 
 color:white;
 
 border:
-
 1px solid rgba(
 255,
 255,
 255,
-0.12
+0.1
 );
 
-transition:all .35s ease;
+transition:.3s;
 
-box-shadow:
-0px 8px 25px
-rgba(
-0,
-0,
-0,
-0.25
-);
-
-height:120px;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
+margin-bottom:10px;
 
 }
-
 
 .card:hover{
 
 transform:
-
-translateY(-10px)
-
-scale(1.04);
+translateY(-8px);
 
 background:
-
-linear-gradient(
-135deg,
-rgba(
-255,
-192,
-203,
-0.30
-),
-
 rgba(
 236,
 72,
 153,
-0.25
-)
-
-);
-
-box-shadow:
-
-0px 15px 35px
-
-rgba(
-236,
-72,
-153,
-0.30
-);
-
-cursor:pointer;
-
-}
-
-
-/* CHAT */
-
-.stChatMessage{
-
-background:
-
-rgba(
-255,
-255,
-255,
-0.08
-);
-
-backdrop-filter:
-blur(10px);
-
-border-radius:20px;
-
-padding:12px;
-
-margin-bottom:10px;
-
-border:
-
-1px solid rgba(
-255,
-255,
-255,
-0.08
+0.2
 );
 
 }
@@ -253,16 +148,7 @@ border:
 [data-testid="stSidebar"]{
 
 background:
-
-linear-gradient(
-
-180deg,
-
-#111827,
-
-#1e293b
-
-);
+#111827;
 
 }
 
@@ -271,74 +157,38 @@ linear-gradient(
 
 .stButton>button{
 
-width:100%;
-
-border-radius:16px;
+border-radius:14px;
 
 background:
-
 linear-gradient(
-
 135deg,
-
 #ec4899,
-
 #f472b6
-
 );
 
 color:white;
 
-border:none;
-
 font-weight:700;
 
-transition:.3s;
-
-}
-
-
-.stButton>button:hover{
-
-transform:
-
-translateY(-3px);
-
-box-shadow:
-
-0px 8px 20px
-
-rgba(
-236,
-72,
-153,
-0.4
-);
+border:none;
 
 }
 
 </style>
-
 """,
-
 unsafe_allow_html=True
 )
-
 
 # ==========================
 # HEADER
 # ==========================
 
 st.markdown(
-
 """
-
 <div class="hero">
 
 <h1>
-
 🌸 Mayi Disha
-
 </h1>
 
 <p>
@@ -348,11 +198,8 @@ AI Companion for Emotional Support & Healing
 </p>
 
 </div>
-
 """,
-
 unsafe_allow_html=True
-
 )
 
 
@@ -378,8 +225,8 @@ if "messages" not in st.session_state:
 
 with st.sidebar:
 
-    st.markdown(
-        "## 🌷 Support Settings"
+    st.title(
+        "🌷 Settings"
     )
 
     support = st.selectbox(
@@ -396,26 +243,9 @@ with st.sidebar:
 
     )
 
-
     allow_search = st.toggle(
         "Enable Search"
     )
-
-
-    st.markdown("---")
-
-
-    if support=="child":
-
-        st.info(
-            "Gentle Support Mode"
-        )
-
-    else:
-
-        st.info(
-            "Women Support Mode"
-        )
 
 
     if st.button(
@@ -432,7 +262,7 @@ with st.sidebar:
 
 
 # ==========================
-# FEATURE CARDS
+# CARDS
 # ==========================
 
 c1,c2,c3=st.columns(3)
@@ -440,71 +270,47 @@ c1,c2,c3=st.columns(3)
 with c1:
 
     st.markdown(
-
     """
-
     <div class="card">
-
-    🤝<br>
-
+    🤝 <br>
     Emotional Support
-
     </div>
-
     """,
-
     unsafe_allow_html=True
-
     )
 
 
 with c2:
 
     st.markdown(
-
     """
-
     <div class="card">
-
-    🧠<br>
-
+    🧠 <br>
     AI Companion
-
     </div>
-
     """,
-
     unsafe_allow_html=True
-
     )
 
 
 with c3:
 
     st.markdown(
-
     """
-
     <div class="card">
-
-    🔒<br>
-
+    🔒 <br>
     Safe Space
-
     </div>
-
     """,
-
     unsafe_allow_html=True
-
     )
 
 
-st.markdown("---")
+st.divider()
 
 
 # ==========================
-# CHAT HISTORY
+# CHAT
 # ==========================
 
 for msg in st.session_state.messages:
@@ -513,7 +319,7 @@ for msg in st.session_state.messages:
         msg["role"]
     ):
 
-        st.markdown(
+        st.write(
             msg["content"]
         )
 
@@ -523,32 +329,14 @@ prompt = st.chat_input(
 )
 
 
-# ==========================
-# CHAT
-# ==========================
-
 if prompt:
 
     st.session_state.messages.append(
-
         {
-
             "role":"user",
-
             "content":prompt
-
         }
-
     )
-
-
-    with st.chat_message(
-        "user"
-    ):
-
-        st.markdown(
-            prompt
-        )
 
 
     payload = {
@@ -577,40 +365,21 @@ if prompt:
         "🌸 Mayi Disha is listening..."
     ):
 
-        r=requests.post(
-
+        r = requests.post(
             f"{BACKEND_URL}/chat",
-
             json=payload
-
         )
 
-
-        response=r.json()[
+        response = r.json()[
             "response"
         ]
 
 
     st.session_state.messages.append(
-
         {
-
             "role":"assistant",
-
             "content":response
-
         }
-
     )
-
-
-    with st.chat_message(
-        "assistant"
-    ):
-
-        st.markdown(
-            response
-        )
-
 
     st.rerun()

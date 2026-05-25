@@ -1,116 +1,206 @@
-# # Uncomment if not using pipenv
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
-# ==========================
-# STEP 1: SCHEMA
-# ==========================
+from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 
-
-class RequestState(BaseModel):
-
-    model_name: str
-
-    model_provider: str
-
-    support_type: str
-
-    messages: List[str]
-
-    allow_search: bool
-
-
-# ==========================
-# STEP 2: IMPORTS
-# ==========================
-from fastapi import FastAPI
 from ai_agent import get_response_from_ai_agent
 
+from database import (
+    create_user,
+    login_user,
+    save_message,
+    get_history
+)
 
 app = FastAPI(
-    title="Abuse Support Chatbot"
+    title="Safe Support Chatbot"
 )
 
 
-# ALLOWED MODELS
-ALLOWED_MODEL_NAMES = [
+class SignupRequest(BaseModel):
 
-    "llama3-70b-8192",
+    name:str
 
-    "mixtral-8x7b-32768",
+    email:str
 
-    "llama-3.3-70b-versatile",
+    password:str
 
-    "gpt-4o-mini"
-]
+    support_type:str
 
 
-# ==========================
-# CHAT ENDPOINT
-# ==========================
-@app.post("/chat")
-async def chat_endpoint(
-    request: RequestState
+class LoginRequest(BaseModel):
+
+    email:str
+
+    password:str
+
+
+class ChatRequest(BaseModel):
+
+    user_id:int
+
+    session_id:str
+
+    model_name:str
+
+    model_provider:str
+
+    support_type:str
+
+    messages:List[str]
+
+    allow_search:bool
+
+
+
+@app.post("/signup")
+def signup(
+    request:SignupRequest
 ):
 
-    try:
+    success = create_user(
 
-        if request.model_name not in ALLOWED_MODEL_NAMES:
+        request.name,
 
-            return {
-                "status": "error",
+        request.email,
 
-                "message":
-                "Invalid model selected"
-            }
+        request.password,
 
+        request.support_type
+    )
 
-        response = get_response_from_ai_agent(
-
-            llm_id=request.model_name,
-
-            query=request.messages,
-
-            allow_search=request.allow_search,
-
-            provider=request.model_provider,
-
-            support_type=request.support_type
-
-        )
-
+    if success:
 
         return {
 
-            "status": "success",
+            "success":True,
 
-            "response": response
+            "message":"Account created"
+
+        }
+
+    return {
+
+        "success":False,
+
+        "message":"Email already exists"
+
+    }
+
+
+
+@app.post("/login")
+def login(
+    request:LoginRequest
+):
+
+    user = login_user(
+
+        request.email,
+
+        request.password
+    )
+
+
+    if user is None:
+
+        return {
+
+            "success":False,
+
+            "message":"Invalid credentials"
 
         }
 
 
-    except Exception as e:
+    return {
 
-        return {
+        "success":True,
 
-            "status": "error",
+        "user_id":user[0],
 
-            "message": str(e)
+        "name":user[1],
 
-        }
+        "support_type":user[2]
+
+    }
 
 
-# ==========================
-# RUN APP
-# ==========================
-if __name__ == "__main__":
+
+@app.post("/chat")
+def chat(
+    request:ChatRequest
+):
+
+    history = get_history(
+        request.session_id
+    )
+
+    full_query = (
+
+        history +
+
+        request.messages
+    )
+
+
+    response = get_response_from_ai_agent(
+
+        request.model_name,
+
+        full_query,
+
+        request.allow_search,
+
+        request.model_provider,
+
+        request.support_type
+    )
+
+
+    save_message(
+
+        request.user_id,
+
+        request.session_id,
+
+        "user",
+
+        request.messages[-1]
+    )
+
+
+    save_message(
+
+        request.user_id,
+
+        request.session_id,
+
+        "assistant",
+
+        response
+    )
+
+
+    return {
+
+        "success":True,
+
+        "response":response
+
+    }
+
+
+
+if __name__=="__main__":
 
     import uvicorn
 
     uvicorn.run(
-        "backend:app",
+
+        app,
 
         host="127.0.0.1",
 

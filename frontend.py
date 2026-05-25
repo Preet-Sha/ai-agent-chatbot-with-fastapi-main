@@ -1,9 +1,13 @@
-# Uncomment if not using pipenv
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 import streamlit as st
 import requests
+import uuid
+
+
+API_URL = "http://127.0.0.1:9999"
+
 
 # ==========================
 # PAGE CONFIG
@@ -15,196 +19,376 @@ st.set_page_config(
 
 st.title("🌸 Safe Support Chatbot")
 
-st.write(
-    """
-    A safe emotional support assistant for children and women.
-    """
-)
-
 
 # ==========================
-# SUPPORT TYPE
+# SESSION VARIABLES
 # ==========================
-support_type = st.radio(
+if "logged_in" not in st.session_state:
 
-    "Choose Support Type",
-
-    [
-
-        "child",
-
-        "women"
-
-    ],
-
-    horizontal=True
-)
+    st.session_state.logged_in = False
 
 
-# ==========================
-# MODEL SELECTION
-# ==========================
-MODEL_NAMES_GROQ = [
+if "chat_history" not in st.session_state:
 
-    "llama-3.3-70b-versatile",
-
-    "mixtral-8x7b-32768"
-
-]
-
-MODEL_NAMES_OPENAI = [
-
-    "gpt-4o-mini"
-
-]
+    st.session_state.chat_history = []
 
 
-provider = st.radio(
+if "session_id" not in st.session_state:
 
-    "Select Provider",
-
-    (
-
-        "Groq",
-
-        "OpenAI"
-
-    )
-)
-
-
-if provider == "Groq":
-
-    selected_model = st.selectbox(
-
-        "Select Groq Model",
-
-        MODEL_NAMES_GROQ
-    )
-
-else:
-
-    selected_model = st.selectbox(
-
-        "Select OpenAI Model",
-
-        MODEL_NAMES_OPENAI
+    st.session_state.session_id = str(
+        uuid.uuid4()
     )
 
 
 # ==========================
-# SEARCH
+# LOGIN / SIGNUP
 # ==========================
-allow_web_search = st.checkbox(
-    "Allow Web Search"
-)
+if not st.session_state.logged_in:
+
+    menu = st.sidebar.radio(
+
+        "Account",
+
+        [
+
+            "Login",
+
+            "Signup"
+
+        ]
+    )
 
 
-# ==========================
-# USER INPUT
-# ==========================
-placeholder_text = (
+    # ==========================
+    # SIGNUP
+    # ==========================
+    if menu == "Signup":
 
-    "Tell me what happened..."
-
-    if support_type == "women"
-
-    else
-
-    "You can talk to me. What happened?"
-)
-
-
-user_query = st.text_area(
-
-    "Message",
-
-    height=180,
-
-    placeholder=placeholder_text
-)
-
-
-API_URL = "http://127.0.0.1:9999/chat"
-
-
-# ==========================
-# SEND MESSAGE
-# ==========================
-if st.button("Send"):
-
-    if user_query.strip() == "":
-
-        st.warning(
-            "Please enter a message"
+        st.subheader(
+            "Create Account"
         )
 
-    else:
+        name = st.text_input(
+            "Name"
+        )
 
-        payload = {
+        email = st.text_input(
+            "Email"
+        )
 
-            "model_name":
-            selected_model,
+        password = st.text_input(
+            "Password",
+            type="password"
+        )
 
-            "model_provider":
-            provider,
+        support_type = st.selectbox(
 
-            "support_type":
-            support_type,
+            "Support Type",
 
-            "messages":
-            [user_query],
+            [
 
-            "allow_search":
-            allow_web_search
-        }
+                "child",
+
+                "women"
+
+            ]
+        )
 
 
-        try:
+        if st.button(
+            "Signup"
+        ):
 
             response = requests.post(
-                API_URL,
-                json=payload
+
+                f"{API_URL}/signup",
+
+                json={
+
+                    "name":
+                    name,
+
+                    "email":
+                    email,
+
+                    "password":
+                    password,
+
+                    "support_type":
+                    support_type
+                }
             )
 
 
             if response.status_code == 200:
 
-                response_data = response.json()
+                data = response.json()
 
-                if response_data.get(
-                    "status"
-                ) == "error":
+                if data["success"]:
 
-                    st.error(
-                        response_data[
-                            "message"
-                        ]
+                    st.success(
+                        "Account Created"
                     )
 
                 else:
 
-                    st.subheader(
-                        "Support Response"
-                    )
-
-                    st.write(
-
-                        response_data[
-                            "response"
-                        ]
-
+                    st.error(
+                        "Email already exists"
                     )
 
             else:
 
                 st.error(
-                    "Backend connection failed"
+                    response.text
                 )
 
 
-        except Exception as e:
+    # ==========================
+    # LOGIN
+    # ==========================
+    if menu == "Login":
+
+        st.subheader(
+            "Login"
+        )
+
+        email = st.text_input(
+            "Email"
+        )
+
+        password = st.text_input(
+            "Password",
+            type="password"
+        )
+
+
+        if st.button(
+            "Login"
+        ):
+
+            response = requests.post(
+
+                f"{API_URL}/login",
+
+                json={
+
+                    "email":
+                    email,
+
+                    "password":
+                    password
+                }
+            )
+
+
+            if response.status_code == 200:
+
+                data = response.json()
+
+
+                if data["success"]:
+
+                    st.session_state.logged_in = True
+
+                    st.session_state.user_id = data[
+                        "user_id"
+                    ]
+
+                    st.session_state.user_name = data[
+                        "name"
+                    ]
+
+                    st.session_state.support = data[
+                        "support_type"
+                    ]
+
+                    st.success(
+                        "Login Successful"
+                    )
+
+                    st.rerun()
+
+                else:
+
+                    st.error(
+                        data["message"]
+                    )
+
+            else:
+
+                st.error(
+                    response.text
+                )
+
+
+
+# ==========================
+# CHAT SCREEN
+# ==========================
+else:
+
+    st.sidebar.success(
+
+        f"Logged in as: {st.session_state.user_name}"
+
+    )
+
+
+    if st.sidebar.button(
+        "Logout"
+    ):
+
+        st.session_state.logged_in = False
+
+        st.session_state.chat_history = []
+
+        st.rerun()
+
+
+    st.write(
+
+        f"Support Mode: **{st.session_state.support}**"
+
+    )
+
+
+    provider = st.selectbox(
+
+        "Provider",
+
+        [
+
+            "Nayi Disha",
+
+
+        ]
+    )
+
+
+    if provider == "Nayi Disha":
+
+        model = "llama-3.3-70b-versatile"
+
+    else:
+
+        model = st.selectbox(
+
+            "Model",
+
+            [
+
+                "llama-3.3-70b-versatile",
+
+                "mixtral-8x7b-32768"
+
+            ]
+        )
+
+
+    allow_search = st.checkbox(
+        "Allow Web Search"
+    )
+
+
+    user_msg = st.chat_input(
+        "Type here..."
+    )
+
+
+    if user_msg:
+
+        st.session_state.chat_history.append(
+
+            (
+
+                "user",
+
+                user_msg
+
+            )
+
+        )
+
+
+        payload = {
+
+            "user_id":
+
+            st.session_state.user_id,
+
+            "session_id":
+
+            st.session_state.session_id,
+
+            "model_name":
+
+            model,
+
+            "model_provider":
+
+            provider,
+
+            "support_type":
+
+            st.session_state.support,
+
+            "messages":
+
+            [
+
+                user_msg
+
+            ],
+
+            "allow_search":
+
+            allow_search
+        }
+
+
+        response = requests.post(
+
+            f"{API_URL}/chat",
+
+            json=payload
+        )
+
+
+        if response.status_code == 200:
+
+            data = response.json()
+
+            ai_reply = data[
+                "response"
+            ]
+
+
+            st.session_state.chat_history.append(
+
+                (
+
+                    "assistant",
+
+                    ai_reply
+
+                )
+
+            )
+
+        else:
 
             st.error(
-                str(e)
+                response.text
+            )
+
+
+    # SHOW CHAT
+    for role, msg in st.session_state.chat_history:
+
+        with st.chat_message(
+            role
+        ):
+
+            st.write(
+                msg
             )

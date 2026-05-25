@@ -16,9 +16,7 @@ from langchain.memory import ConversationBufferMemory
 # ==========================
 
 memory = ConversationBufferMemory(
-
     return_messages=True
-
 )
 
 
@@ -47,25 +45,20 @@ CRISIS_WORDS = [
 
 EMERGENCY_RESPONSE = """
 
-I'm really sorry you're going through this.
+I'm sorry you're feeling this way.
 
-Please talk to someone you trust immediately.
+You are not alone 🌸
 
-You deserve support and help 🌸
+Please reach out to someone you trust or a support professional.
 
-Consider reaching out to local emergency or crisis services.
+If you're in immediate danger, contact local emergency support.
 
 """
 
 
-def detect_crisis(
-
-    text
-
-):
+def detect_crisis(text):
 
     text = text.lower()
-
 
     for word in CRISIS_WORDS:
 
@@ -86,19 +79,17 @@ You are an emotional support AI for children.
 
 Rules:
 
-- Keep response short
+- Keep responses short
 
-- Maximum 2-3 lines
+- Maximum 2 lines
 
-- Use simple language
+- Use simple words
 
 - Be gentle
 
 - Encourage trusted adults
 
-- Prioritize safety
-
-Reply in less than 50 words.
+Reply under 40 words.
 
 """
 
@@ -115,15 +106,13 @@ Rules:
 
 - Keep responses concise
 
-- Maximum 2-4 lines
+- Maximum 3 lines
 
 - Be supportive
 
 - Never judge
 
-- Prioritize safety
-
-Reply in less than 50 words.
+Reply under 50 words.
 
 """
 
@@ -146,17 +135,32 @@ def get_response_from_ai_agent(
 
 
     # ------------------
+    # CURRENT MESSAGE ONLY
+    # ------------------
+
+    current_message = query.split(
+        "\n"
+    )[-1]
+
+
+    # ------------------
     # CRISIS CHECK
     # ------------------
 
     if detect_crisis(
 
-        query
+        current_message
 
     ):
 
+        memory.clear()
+
         return EMERGENCY_RESPONSE
 
+
+    # ------------------
+    # MODEL
+    # ------------------
 
     llm = ChatGroq(
 
@@ -164,7 +168,7 @@ def get_response_from_ai_agent(
 
         temperature=0.3,
 
-        max_tokens=120
+        max_tokens=100
 
     )
 
@@ -179,6 +183,10 @@ def get_response_from_ai_agent(
 
     )
 
+
+    # ------------------
+    # TOOLS
+    # ------------------
 
     tools=[]
 
@@ -208,13 +216,11 @@ def get_response_from_ai_agent(
 
 
     # ------------------
-    # MEMORY LOAD
+    # LOAD MEMORY
     # ------------------
 
     history = memory.load_memory_variables(
-
         {}
-
     )
 
 
@@ -231,12 +237,16 @@ def get_response_from_ai_agent(
 
         HumanMessage(
 
-            content=query
+            content=current_message
 
         )
 
     ]
 
+
+    # ------------------
+    # AGENT RESPONSE
+    # ------------------
 
     response = agent.invoke(
 
@@ -252,9 +262,7 @@ def get_response_from_ai_agent(
 
 
     messages = response[
-
         "messages"
-
     ]
 
 
@@ -265,11 +273,8 @@ def get_response_from_ai_agent(
         for x in messages
 
         if isinstance(
-
             x,
-
             AIMessage
-
         )
 
     ]
@@ -288,7 +293,7 @@ def get_response_from_ai_agent(
 
             "input":
 
-            query
+            current_message
 
         },
 

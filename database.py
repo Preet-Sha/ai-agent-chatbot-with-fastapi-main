@@ -118,37 +118,55 @@ def login_user(
 
     return cursor.fetchone()
 
-
+# ==========================
+# SAVE CHAT
+# ==========================
 def save_message(
+
     user_id,
-    session_id,
+
     role,
+
     message
 ):
 
-    cursor.execute(
-        """
-        INSERT INTO chat_history
-        (
+    try:
+
+        cursor.execute(
+
+            """
+            INSERT INTO chat_history(
+
             user_id,
-            session_id,
+
             role,
+
             message
+
+            )
+
+            VALUES(?,?,?)
+            """,
+
+            (
+
+                user_id,
+
+                role,
+
+                message
+
+            )
         )
 
-        VALUES (?,?,?,?)
-        """,
+        conn.commit()
 
-        (
-            user_id,
-            session_id,
-            role,
-            message
+    except Exception as e:
+
+        print(
+            "SAVE ERROR:",
+            e
         )
-    )
-
-    conn.commit()
-
 
 def get_history(
     session_id

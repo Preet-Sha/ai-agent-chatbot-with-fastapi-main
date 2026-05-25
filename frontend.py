@@ -1,277 +1,84 @@
-from dotenv import load_dotenv
-load_dotenv()
-
 import streamlit as st
+import requests
 
-from database import *
-
-from ai_agent import *
-
-
+# Page Config
 st.set_page_config(
-    page_title="Safe Support Chatbot",
-    layout="centered"
+    page_title="Nayi Disha",
+    page_icon="🤖",
+    layout="wide"
 )
 
+# Title
+st.title("🤖 Nayi Disha")
+st.write("Your AI Assistant")
 
-st.title(
-    "🌸 Safe Support Chatbot"
+# Model Mapping
+model_options = {
+    "Nayi Disha": "llama-3.3-70b-versatile"
+}
+
+selected_option = st.selectbox(
+    "Select Assistant",
+    options=list(model_options.keys()),
+    index=0
 )
 
+# Actual model used internally
+model = model_options[selected_option]
 
-# ==========================
-# SESSION STATE
-# ==========================
-if "logged_in" not in st.session_state:
+# Session state for chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-    st.session_state.logged_in = False
+# Display old messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
+# User Input
+prompt = st.chat_input("Ask Nayi Disha...")
 
-if "user_id" not in st.session_state:
+if prompt:
 
-    st.session_state.user_id = None
-
-
-if "support" not in st.session_state:
-
-    st.session_state.support = None
-
-
-if "name" not in st.session_state:
-
-    st.session_state.name = None
-
-
-
-# ==========================
-# LOGIN / SIGNUP
-# ==========================
-if not st.session_state.logged_in:
-
-    page = st.sidebar.radio(
-
-        "Account",
-
-        [
-
-            "Login",
-
-            "Signup"
-
-        ]
+    # Show user message
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": prompt
+        }
     )
 
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-    # ======================
-    # SIGNUP
-    # ======================
-    if page == "Signup":
+    # Backend call
+    try:
+        payload = {
+            "message": prompt,
+            "model_name": model
+        }
 
-        name = st.text_input(
-            "Name"
+        response = requests.post(
+            "http://127.0.0.1:9999/chat",
+            json=payload
         )
 
-        email = st.text_input(
-            "Email"
-        )
+        if response.status_code == 200:
 
-        password = st.text_input(
+            ai_response = response.json()["response"]
 
-            "Password",
-
-            type="password"
-        )
-
-
-        support = st.selectbox(
-
-            "Support Type",
-
-            [
-
-                "child",
-
-                "women"
-
-            ]
-        )
-
-
-        if st.button(
-            "Signup"
-        ):
-
-            ok = create_user(
-
-                name,
-
-                email,
-
-                password,
-
-                support
+            st.session_state.messages.append(
+                {
+                    "role": "assistant",
+                    "content": ai_response
+                }
             )
 
+            with st.chat_message("assistant"):
+                st.markdown(ai_response)
 
-            if ok:
+        else:
+            st.error("Backend Error")
 
-                st.success(
-                    "Account created"
-                )
-
-            else:
-
-                st.error(
-                    "Email already exists"
-                )
-
-
-    # ======================
-    # LOGIN
-    # ======================
-    if page == "Login":
-
-        email = st.text_input(
-            "Email"
-        )
-
-        password = st.text_input(
-
-            "Password",
-
-            type="password"
-        )
-
-
-        if st.button(
-            "Login"
-        ):
-
-            user = login_user(
-
-                email,
-
-                password
-            )
-
-
-            if user:
-
-                st.session_state.logged_in = True
-
-                st.session_state.user_id = user[0]
-
-                st.session_state.name = user[1]
-
-                st.session_state.support = user[2]
-
-                st.rerun()
-
-
-            else:
-
-                st.error(
-                    "Invalid credentials"
-                )
-
-
-
-# ==========================
-# CHAT SECTION
-# ==========================
-else:
-
-    st.sidebar.success(
-
-        f"Logged in as {st.session_state.name}"
-    )
-
-
-    if st.sidebar.button(
-        "Logout"
-    ):
-
-        st.session_state.clear()
-
-        st.rerun()
-
-
-
-    model = st.selectbox(
-
-        "Select Model",
-
-        [
-
-            "llama-3.3-70b-versatile",
-
-            "mixtral-8x7b-32768"
-
-        ]
-    )
-
-
-    allow_search = st.checkbox(
-        "Allow Web Search"
-    )
-
-
-    history = get_history(
-
-        st.session_state.user_id
-    )
-
-
-    for msg in history:
-
-        st.write(
-            msg
-        )
-
-
-    prompt = st.chat_input(
-        "Type your message"
-    )
-
-
-    if prompt:
-
-        save_message(
-
-            st.session_state.user_id,
-
-            "user",
-
-            prompt
-        )
-
-
-        history = get_history(
-
-            st.session_state.user_id
-        )
-
-
-        reply = get_response_from_ai_agent(
-
-            model,
-
-            history,
-
-            allow_search,
-
-            st.session_state.support
-        )
-
-
-        save_message(
-
-            st.session_state.user_id,
-
-            "assistant",
-
-            reply
-        )
-
-
-        st.rerun()
+    except Exception as e:
+        st.error(f"Error: {e}")

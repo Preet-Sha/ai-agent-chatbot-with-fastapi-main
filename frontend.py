@@ -1,9 +1,9 @@
-
+from dotenv import load_dotenv
+load_dotenv()
 
 import streamlit as st
 
 from database import *
-
 from ai_agent import *
 
 
@@ -11,18 +11,15 @@ from ai_agent import *
 # PAGE CONFIG
 # ==========================
 st.set_page_config(
-    
 
     page_title="Safe Support Chatbot",
 
     layout="centered"
 )
 
-
 st.title(
     "🌸 Safe Support Chatbot"
 )
-
 
 
 # ==========================
@@ -50,7 +47,7 @@ if "name" not in st.session_state:
 
 
 # ==========================
-# LOGIN / SIGNUP SECTION
+# LOGIN / SIGNUP
 # ==========================
 if not st.session_state.logged_in:
 
@@ -220,7 +217,7 @@ else:
 
 
     # ======================
-    # DISPLAY CHAT HISTORY
+    # SHOW HISTORY
     # ======================
     history = get_history(
 
@@ -228,9 +225,7 @@ else:
     )
 
 
-    for i, msg in enumerate(history):
-
-        role = "user" if i % 2 == 0 else "assistant"
+    for role, msg in history:
 
         with st.chat_message(role):
 
@@ -249,13 +244,13 @@ else:
     if prompt:
 
 
-        # show user message instantly
-        with st.chat_message("user"):
+        with st.chat_message(
+            "user"
+        ):
 
             st.markdown(prompt)
 
 
-        # save user message
         save_message(
 
             st.session_state.user_id,
@@ -266,14 +261,21 @@ else:
         )
 
 
-        # get updated history
         history = get_history(
 
             st.session_state.user_id
         )
 
 
-        # AI RESPONSE
+        messages = [
+
+            x[1]
+
+            for x in history
+
+        ]
+
+
         with st.spinner(
             "Thinking..."
         ):
@@ -282,7 +284,7 @@ else:
 
                 model,
 
-                history,
+                messages,
 
                 allow_search,
 
@@ -290,7 +292,6 @@ else:
             )
 
 
-        # save assistant response
         save_message(
 
             st.session_state.user_id,
@@ -301,8 +302,9 @@ else:
         )
 
 
-        # display assistant response
-        with st.chat_message("assistant"):
+        with st.chat_message(
+            "assistant"
+        ):
 
             st.markdown(reply)
 

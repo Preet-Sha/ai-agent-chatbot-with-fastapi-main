@@ -1,6 +1,6 @@
-# Uncomment if not using pipenv
-from dotenv import load_dotenv
-load_dotenv()
+# # Uncomment if not using pipenv
+# from dotenv import load_dotenv
+# load_dotenv()
 
 # ==========================
 # STEP 1: API KEYS
